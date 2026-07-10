@@ -1,0 +1,19 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+
+# Local credentials
+outputs/.env
+
+# Generated candidate data and local test artifacts
+outputs/debug_*.html
+outputs/*candidates*.csv
+outputs/*candidates*.json
+outputs/*candidates*.xlsx
+outputs/*.inspect.ndjson
+outputs/rejected_search_results.csv
+outputs/outreach_queue*.csv
+outputs/outreach_queue*.json
+
+# Keep source templates under version control.
+!outputs/short_video_input_template.csv
