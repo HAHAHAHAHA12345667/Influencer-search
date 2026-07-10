@@ -1,0 +1,3 @@
+platform,profile_url,handle,display_name,bio,follower_count,following_count,likes_count,video_count,external_url,website,email,country,language,niche,source
+tiktok,https://www.tiktok.com/@example,@example,Example Wellness Creator,"Gut health tips. Business: hello@example.com. Link: https://linktr.ee/example",125000,800,2300000,180,https://linktr.ee/example,,,US,en,gut health,approved_creator_source
+instagram,https://www.instagram.com/example/,@example,Example Nutritionist,"Registered dietitian | recipes | partnerships",48200,650,,,https://example.com/contact,https://example.com,,US,en,nutrition,approved_creator_source
