@@ -29,6 +29,17 @@ python3 short_video_influencer_mvp.py --input creators.csv --platform tiktok --m
 python3 outreach_queue_builder.py --input short_video_influencer_candidates.csv --out outreach_queue_tiktok.csv --limit 10
 ```
 
+## Recheck Public Contact Paths
+
+When a candidate list already exists, run contact enrichment without searching for creators again:
+
+```bash
+cd outputs
+python3 contact_enrichment.py --input youtube_influencer_candidates.csv --out youtube_contacts_enriched.csv --limit 10 --contact-pages-per-creator 3
+```
+
+The command checks only public creator-supplied links such as websites, Linktree-style pages, and Contact/About pages. Use `--skip-public-pages` for a no-network preview of the existing contact fields.
+
 ## Credentials and Data Safety
 
 - Copy `outputs/.env.example` to `outputs/.env` and keep all real keys only in `.env`.
