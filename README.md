@@ -29,6 +29,23 @@ python3 short_video_influencer_mvp.py --input creators.csv --platform tiktok --m
 python3 outreach_queue_builder.py --input short_video_influencer_candidates.csv --out outreach_queue_tiktok.csv --limit 10
 ```
 
+### Automatic TikTok Discovery
+
+For automatic TikTok discovery, use a Modash Discovery API key in `outputs/.env`:
+
+```bash
+MODASH_API_KEY=your_modash_key
+```
+
+Then the complete discovery and public-contact workflow is one command:
+
+```bash
+cd outputs
+python3 tiktok_influencer_mvp.py --keyword "gut health" --min-followers 10000 --limit 30 --scrape-public-contact-pages
+```
+
+This writes `tiktok_influencer_candidates.csv` and JSON with TikTok profile links, followers, engagement fields supplied by Modash, public contact paths, public emails found, and a fit score. Use `--dry-run` to inspect the Modash request without spending API credits. Advanced Modash filters can be supplied with `--filter-json`.
+
 ## Recheck Public Contact Paths
 
 When a candidate list already exists, run contact enrichment without searching for creators again:
