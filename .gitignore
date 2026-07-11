@@ -17,6 +17,8 @@ outputs/outreach_queue*.csv
 outputs/outreach_queue*.json
 outputs/*enriched*.csv
 outputs/*enriched*.json
+outputs/tiktok_influencer_candidates.csv
+outputs/tiktok_influencer_candidates.json
 
 # Keep source templates under version control.
 !outputs/short_video_input_template.csv
