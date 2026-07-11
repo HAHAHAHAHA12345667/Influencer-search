@@ -15,6 +15,8 @@ outputs/*.inspect.ndjson
 outputs/rejected_search_results.csv
 outputs/outreach_queue*.csv
 outputs/outreach_queue*.json
+outputs/*enriched*.csv
+outputs/*enriched*.json
 
 # Keep source templates under version control.
 !outputs/short_video_input_template.csv
