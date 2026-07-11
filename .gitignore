@@ -4,6 +4,7 @@ __pycache__/
 
 # Local credentials
 outputs/.env
+ai_avatar_mvp/.env
 
 # Generated candidate data and local test artifacts
 outputs/debug_*.html
