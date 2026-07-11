@@ -11,18 +11,18 @@ This is a fictional product-introduction sample for a wellness brand. The host i
 
 ## Assets
 
-- `assets/lumaroot-host.png`: source image for an image-to-video digital presenter.
-- `assets/lumaroot-product.png`: vertical product B-roll visual. Add the brand name as video-editor text rather than altering the package image.
+- `assets/lumaroot-host.jpg`: source image for an image-to-video digital presenter.
+- `assets/lumaroot-product.jpg`: vertical product B-roll visual. Add the brand name as video-editor text rather than altering the package image.
 - `product_intro_en.txt`: approximately 30-second English voiceover.
 - `video_brief.json`: settings, overlays, and safety notes for a video tool.
 
 ## Create the First Video
 
-1. In an AI avatar video tool, create an image-based avatar with `assets/lumaroot-host.png`.
+1. In an AI avatar video tool, create an image-based avatar with `assets/lumaroot-host.jpg`.
 2. Use a natural US-English female voice. Do not use a cloned voice or a real person's identity.
 3. Paste the narration from `product_intro_en.txt`.
 4. Set the canvas to vertical `9:16`, 1080 x 1920, with captions on.
-5. Insert `assets/lumaroot-product.png` as a 3-5 second B-roll shot after the opening.
+5. Insert `assets/lumaroot-product.jpg` as a 3-5 second B-roll shot after the opening.
 6. Add the exact overlays from `video_brief.json`, then export an MP4.
 
 ## Approval Checklist

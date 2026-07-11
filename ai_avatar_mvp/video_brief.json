@@ -8,7 +8,7 @@
     "captions": true
   },
   "avatar": {
-    "source_image": "assets/lumaroot-host.png",
+    "source_image": "assets/lumaroot-host.jpg",
     "identity": "fictional AI-generated wellness host",
     "voice": "natural US-English female voice, calm and clear",
     "delivery": "friendly, conversational, not clinical"
@@ -21,7 +21,7 @@
     },
     {
       "seconds": "6-11",
-      "visual": "product B-roll using assets/lumaroot-product.png",
+      "visual": "product B-roll using assets/lumaroot-product.jpg",
       "overlay": "Fiber + Botanical Drink Mix"
     },
     {
