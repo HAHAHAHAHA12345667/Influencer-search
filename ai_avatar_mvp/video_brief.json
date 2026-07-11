@@ -1,0 +1,46 @@
+{
+  "brand": "LumaRoot",
+  "product": "LumaRoot Daily",
+  "format": {
+    "aspect_ratio": "9:16",
+    "resolution": "1080x1920",
+    "target_duration_seconds": 32,
+    "captions": true
+  },
+  "avatar": {
+    "source_image": "assets/lumaroot-host.png",
+    "identity": "fictional AI-generated wellness host",
+    "voice": "natural US-English female voice, calm and clear",
+    "delivery": "friendly, conversational, not clinical"
+  },
+  "scene_plan": [
+    {
+      "seconds": "0-6",
+      "visual": "avatar on camera",
+      "overlay": "Meet LumaRoot Daily"
+    },
+    {
+      "seconds": "6-11",
+      "visual": "product B-roll using assets/lumaroot-product.png",
+      "overlay": "Fiber + Botanical Drink Mix"
+    },
+    {
+      "seconds": "11-25",
+      "visual": "avatar on camera",
+      "overlay": "A simple daily wellness ritual"
+    },
+    {
+      "seconds": "25-32",
+      "visual": "avatar with product B-roll cutaway",
+      "overlay": "Learn more about LumaRoot Daily"
+    }
+  ],
+  "required_disclaimer": "Not intended to diagnose, treat, cure, or prevent any disease.",
+  "avoid": [
+    "medical uniform or doctor title",
+    "before-and-after claims",
+    "disease names or treatment claims",
+    "real-person or cloned voice",
+    "unverified ingredient or clinical claims"
+  ]
+}
