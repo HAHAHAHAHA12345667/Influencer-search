@@ -39,3 +39,7 @@ python3 outreach_queue_builder.py --input short_video_influencer_candidates.csv 
 ## Next Integration
 
 The next data-source adapter will be selected after a small Modash or HypeAuditor trial/export is available. The existing `short_video_influencer_mvp.py` accepts their CSV exports now; later it can be connected directly to an API key without changing the review-queue step.
+
+## AI Digital Human Sample
+
+`ai_avatar_mvp/` contains an original fictional presenter, a fictional wellness product visual, a 30-second English product-introduction script, and a video-production brief. It is intentionally limited to general wellness language and requires human review before public use.
