@@ -25,6 +25,30 @@ This is a fictional product-introduction sample for a wellness brand. The host i
 5. Insert `assets/lumaroot-product.jpg` as a 3-5 second B-roll shot after the opening.
 6. Add the exact overlays from `video_brief.json`, then export an MP4.
 
+## One-Button Local Tool
+
+`video_button.py` starts a small local control page. It works in two modes:
+
+- Preview mode: the `Prepare Script` button is free and creates a reviewed script locally.
+- Generate mode: the `Generate Video` button submits the video to HeyGen and shows its final download link.
+
+Set up once:
+
+```bash
+cd ai_avatar_mvp
+cp .env.example .env
+open -e .env
+python3 video_button.py
+```
+
+Put your HeyGen API key, avatar ID, and voice ID in `.env`, then open `http://127.0.0.1:8765` in a browser. The API key remains only on your computer; the page never displays or stores it.
+
+For the first automated render, create the photo avatar once in HeyGen's Photo-to-Video flow using `assets/lumaroot-host.jpg`, then use its API avatar ID and a selected API voice ID in `.env`. After that one-time setup, each new product script can be submitted from the local button.
+
+## Cost
+
+HeyGen's web free tier can be used for a few manual sample videos. API automation is paid separately on a pay-as-you-go basis, so use `Prepare Script` freely and click `Generate Video` only after the copy is approved.
+
 ## Approval Checklist
 
 - No claims about curing, treating, preventing, or diagnosing disease.
