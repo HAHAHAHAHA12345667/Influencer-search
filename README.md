@@ -7,7 +7,8 @@ This is a small-sample workflow for finding health creators, collecting public c
 1. Discover a small creator sample from YouTube or an approved TikTok/Instagram data source.
 2. Enrich only public contact information from bios, About links, Linktree-style pages, and creator websites.
 3. Create a review queue. A person confirms creator fit and contact details before outreach.
-4. Approve the creator and contact route manually, then send a small email batch with an audit log.
+4. Use AI to prepare fit notes and personalized email drafts, then approve the creator and contact route manually.
+5. Send a small, approved email batch with an audit log.
 
 ## Small Sample: YouTube
 
@@ -81,6 +82,18 @@ python3 outreach_sender.py --input outreach_queue.csv --out outreach_queue_after
 ```
 
 The sender only processes rows with `review_status=approved`, a valid `primary_email`, and an outreach status that has not already been sent or opted out. It never sends TikTok, Instagram, or YouTube DMs automatically; those profiles remain manual contact routes. Keep the physical business address and unsubscribe inbox in the email footer, and record opt-outs in the queue before a later run.
+
+## AI Drafting Before Review
+
+Add an `OPENAI_API_KEY` to `outputs/.env`, then use the AI writer to prepare a fit assessment, risks, a personalized hook, email subject, and message body for each creator. It uses only the details in the CSV and your campaign brief. It never changes `review_status` and never sends an email.
+
+```bash
+cd outputs
+python3 ai_outreach_writer.py --input outreach_queue.csv --out outreach_queue_ai.csv --brand-name "Your Brand" --campaign-brief "Paid collaboration introducing our daily wellness product. Do not make medical claims." --limit 10
+python3 ai_outreach_writer.py --input outreach_queue.csv --out outreach_queue_ai.csv --brand-name "Your Brand" --campaign-brief "Paid collaboration introducing our daily wellness product. Do not make medical claims." --limit 10 --generate
+```
+
+The first command is a no-cost preview. The second one calls the OpenAI API and adds `ai_*` columns to the new CSV. Review `ai_fit_summary`, `ai_risk_flags`, `ai_subject`, and `ai_email_body`; only then set `review_status=approved`. `outreach_sender.py` uses the reviewed AI subject/body when present and otherwise uses the normal email template.
 
 ## Next Integration
 
