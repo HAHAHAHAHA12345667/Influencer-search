@@ -7,7 +7,7 @@ This is a small-sample workflow for finding health creators, collecting public c
 1. Discover a small creator sample from YouTube or an approved TikTok/Instagram data source.
 2. Enrich only public contact information from bios, About links, Linktree-style pages, and creator websites.
 3. Create a review queue. A person confirms creator fit and contact details before outreach.
-4. Send approved outreach manually or through a future consent-aware email tool.
+4. Approve the creator and contact route manually, then send a small email batch with an audit log.
 
 ## Small Sample: YouTube
 
@@ -63,6 +63,24 @@ The command checks only public creator-supplied links such as websites, Linktree
 - Do not commit `.env`, contact lists, or debug pages. `.gitignore` already excludes them.
 - Do not bypass login, CAPTCHA, or platform email-reveal screens.
 - Review every outbound message before sending it, especially for health claims.
+
+## Review-Gated Email Outreach
+
+Build a small outreach queue, then open its CSV and fill `review_status=approved` only for creators that a person has checked. Also fill `campaign_angle` and `personalization_note`; they become part of the message. Rows without a public email stay in the queue as `manual_profile_contact` and are not sent automatically.
+
+```bash
+cd outputs
+python3 outreach_queue_builder.py --input youtube_influencer_candidates.csv --out outreach_queue.csv --limit 10
+python3 outreach_sender.py --input outreach_queue.csv --out outreach_queue_preview.csv --brand-name "Your Brand" --dry-run
+```
+
+`outreach_sender.py` is a dry-run unless `--send` is supplied. The preview creates an updated queue and a send log but does not connect to any email service. Once the approved rows, message, postal address, and opt-out email have been reviewed, add SMTP settings to `outputs/.env` and run a deliberately small batch:
+
+```bash
+python3 outreach_sender.py --input outreach_queue.csv --out outreach_queue_after_send.csv --brand-name "Your Brand" --max-send 5 --pause 45 --send --yes-send-approved
+```
+
+The sender only processes rows with `review_status=approved`, a valid `primary_email`, and an outreach status that has not already been sent or opted out. It never sends TikTok, Instagram, or YouTube DMs automatically; those profiles remain manual contact routes. Keep the physical business address and unsubscribe inbox in the email footer, and record opt-outs in the queue before a later run.
 
 ## Next Integration
 
