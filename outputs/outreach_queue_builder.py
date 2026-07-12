@@ -25,6 +25,7 @@ OUTPUT_FIELDS = [
     "contact_status",
     "audience_size",
     "fit_score",
+    "creator_bio",
     "niche_or_topics",
     "source_file",
     "review_status",
@@ -49,6 +50,11 @@ def get_value(row: dict[str, str], *names: str) -> str:
         if value:
             return value
     return ""
+
+
+def compact_text(value: str, limit: int = 2500) -> str:
+    value = " ".join(value.split())
+    return value[:limit].rstrip() if len(value) > limit else value
 
 
 def candidate_id(platform: str, profile_url: str, handle: str, email: str) -> str:
@@ -78,6 +84,7 @@ def to_queue_row(raw: dict[str, str], source_file: str) -> dict[str, str]:
         "contact_status": get_value(raw, "contact_status") or "needs_manual_review",
         "audience_size": audience_size,
         "fit_score": get_value(raw, "fit_score"),
+        "creator_bio": compact_text(get_value(raw, "description", "bio")),
         "niche_or_topics": niche_or_topics,
         "source_file": source_file,
         "review_status": "to_review",
