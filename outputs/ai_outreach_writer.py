@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Use the OpenAI Responses API to draft review-only creator outreach content.
+"""Use the Gemini API to draft review-only creator outreach content.
 
 The script adds AI suggestions to an outreach queue CSV. It never changes
 review_status, never discovers private contact information, and never sends an
@@ -7,7 +7,7 @@ email. A person must review and approve each row before outreach_sender.py can
 deliver it.
 
 Setup in outputs/.env:
-  OPENAI_API_KEY=your_api_key
+  GEMINI_API_KEY=your_api_key
 
 Example:
   python3 ai_outreach_writer.py --input outreach_queue.csv --out outreach_queue_ai.csv \
@@ -29,8 +29,8 @@ from typing import Any
 import requests
 
 
-RESPONSES_URL = "https://api.openai.com/v1/responses"
-DEFAULT_MODEL = "gpt-5.6"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+DEFAULT_MODEL = "gemini-2.5-flash"
 AI_FIELDS = [
     "ai_fit_score",
     "ai_fit_decision",
@@ -66,12 +66,24 @@ def read_dotenv() -> dict[str, str]:
     return values
 
 
-def api_key(argument: str) -> str:
-    dotenv = read_dotenv()
-    key = argument.strip() or os.getenv("OPENAI_API_KEY", "").strip() or dotenv.get("OPENAI_API_KEY", "")
+def setting(name: str, dotenv: dict[str, str], default: str = "") -> str:
+    return os.getenv(name, "").strip() or dotenv.get(name, "").strip() or default
+
+
+def api_key(argument: str, dotenv: dict[str, str]) -> str:
+    key = argument.strip() or setting("GEMINI_API_KEY", dotenv)
     if not key:
-        raise ValueError("Missing OPENAI_API_KEY. Add it to outputs/.env or pass --api-key.")
+        raise ValueError("Missing GEMINI_API_KEY. Add it to outputs/.env or pass --api-key.")
+    if key.startswith("PASTE_") or key.startswith("YOUR_"):
+        raise ValueError("GEMINI_API_KEY still has the example marker. Replace it with your real key.")
     return key
+
+
+def required_value(value: str, name: str) -> str:
+    value = value.strip()
+    if not value or value.startswith("PASTE_") or value.startswith("REPLACE_") or value.startswith("YOUR_"):
+        raise ValueError(f"{name} is missing. Replace its marker in outputs/.env or pass it in the command.")
+    return value
 
 
 def queue_context(row: dict[str, str]) -> dict[str, str]:
@@ -138,18 +150,24 @@ grounded in the supplied record. The output is a draft only, not approval to con
 
 
 def text_from_response(payload: dict[str, Any]) -> str:
-    direct = payload.get("output_text")
-    if isinstance(direct, str) and direct.strip():
-        return direct
-    for item in payload.get("output", []):
-        if not isinstance(item, dict) or item.get("type") != "message":
+    candidates = payload.get("candidates", [])
+    for candidate in candidates:
+        if not isinstance(candidate, dict):
             continue
-        for content in item.get("content", []):
-            if isinstance(content, dict) and content.get("type") == "output_text":
-                text = content.get("text", "")
-                if isinstance(text, str) and text.strip():
-                    return text
-    raise ValueError("OpenAI response did not contain output text.")
+        content = candidate.get("content", {})
+        if not isinstance(content, dict):
+            continue
+        text = "".join(
+            part.get("text", "")
+            for part in content.get("parts", [])
+            if isinstance(part, dict) and isinstance(part.get("text"), str)
+        )
+        if text.strip():
+            return text
+    prompt_feedback = payload.get("promptFeedback", {})
+    if isinstance(prompt_feedback, dict) and prompt_feedback.get("blockReason"):
+        raise ValueError(f"Gemini blocked the prompt: {prompt_feedback['blockReason']}")
+    raise ValueError("Gemini response did not contain text output.")
 
 
 def generate_draft(
@@ -167,30 +185,23 @@ def generate_draft(
         "creator_record": queue_context(row),
     }
     request = {
-        "model": model,
-        "instructions": INSTRUCTIONS,
-        "input": json.dumps(prompt, ensure_ascii=False),
-        "reasoning": {"effort": "low"},
-        "max_output_tokens": 700,
-        "store": False,
-        "text": {
-            "format": {
-                "type": "json_schema",
-                "name": "creator_outreach_draft",
-                "strict": True,
-                "schema": output_schema(),
-            }
+        "systemInstruction": {"parts": [{"text": INSTRUCTIONS}]},
+        "contents": [{"role": "user", "parts": [{"text": json.dumps(prompt, ensure_ascii=False)}]}],
+        "generationConfig": {
+            "responseMimeType": "application/json",
+            "responseJsonSchema": output_schema(),
+            "maxOutputTokens": 700,
         },
     }
     response = requests.post(
-        RESPONSES_URL,
-        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        GEMINI_URL.format(model=model),
+        headers={"x-goog-api-key": key, "Content-Type": "application/json"},
         json=request,
         timeout=90,
     )
     if not response.ok:
         message = response.text[:1000]
-        raise RuntimeError(f"OpenAI returned {response.status_code}: {message}")
+        raise RuntimeError(f"Gemini returned {response.status_code}: {message}")
     try:
         draft = json.loads(text_from_response(response.json()))
     except (json.JSONDecodeError, ValueError) as error:
@@ -227,11 +238,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate review-only AI creator-fit and email drafts.")
     parser.add_argument("--input", required=True, help="Outreach queue or creator candidate CSV.")
     parser.add_argument("--out", default="outreach_queue_ai.csv", help="CSV containing AI suggestions.")
-    parser.add_argument("--brand-name", required=True, help="Brand name the model may mention.")
-    parser.add_argument("--campaign-brief", required=True, help="What is being promoted, the campaign goal, and non-negotiables.")
-    parser.add_argument("--language", default="English", help="Language for email drafts, for example English or Chinese.")
-    parser.add_argument("--model", default=DEFAULT_MODEL, help=f"OpenAI model (default: {DEFAULT_MODEL}).")
-    parser.add_argument("--api-key", default="", help="Prefer OPENAI_API_KEY in outputs/.env.")
+    parser.add_argument("--brand-name", default="", help="Brand name. Defaults to AI_BRAND_NAME in outputs/.env.")
+    parser.add_argument("--campaign-brief", default="", help="Campaign brief. Defaults to AI_CAMPAIGN_BRIEF in outputs/.env.")
+    parser.add_argument("--language", default="", help="Draft language. Defaults to AI_DRAFT_LANGUAGE in outputs/.env.")
+    parser.add_argument("--model", default="", help=f"Gemini model. Defaults to GEMINI_MODEL or {DEFAULT_MODEL}.")
+    parser.add_argument("--api-key", default="", help="Prefer GEMINI_API_KEY in outputs/.env.")
     parser.add_argument("--limit", type=int, default=20, help="Maximum eligible creators to process.")
     parser.add_argument("--pause", type=float, default=0.5, help="Seconds between API calls.")
     parser.add_argument("--only-approved", action="store_true", help="Only draft for rows already marked review_status=approved.")
@@ -270,8 +281,16 @@ def main() -> None:
         print("[next] add --generate after confirming the campaign brief and API key.")
         return
 
+    dotenv = read_dotenv()
     try:
-        key = api_key(args.api_key)
+        key = api_key(args.api_key, dotenv)
+        brand_name = required_value(args.brand_name or setting("AI_BRAND_NAME", dotenv), "AI_BRAND_NAME / --brand-name")
+        campaign_brief = required_value(
+            args.campaign_brief or setting("AI_CAMPAIGN_BRIEF", dotenv),
+            "AI_CAMPAIGN_BRIEF / --campaign-brief",
+        )
+        language = args.language.strip() or setting("AI_DRAFT_LANGUAGE", dotenv, "English")
+        model = args.model.strip() or setting("GEMINI_MODEL", dotenv, DEFAULT_MODEL)
     except ValueError as error:
         raise SystemExit(f"[configuration-error] {error}") from error
 
@@ -280,14 +299,14 @@ def main() -> None:
     for row in eligible:
         name = row.get("creator_name") or row.get("handle") or row.get("candidate_id", "unknown creator")
         try:
-            draft = generate_draft(key, args.model, args.brand_name, args.campaign_brief, args.language, row)
-            apply_draft(row, draft, args.model)
+            draft = generate_draft(key, model, brand_name, campaign_brief, language, row)
+            apply_draft(row, draft, model)
             completed += 1
             print(f"[drafted] {name}")
         except (requests.RequestException, RuntimeError, ValueError) as error:
             row["ai_error"] = str(error)
             row["ai_generated_at"] = utc_now()
-            row["ai_model"] = args.model
+            row["ai_model"] = model
             failed += 1
             print(f"[failed] {name}: {error}")
         if completed + failed < len(eligible) and args.pause:
