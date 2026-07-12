@@ -85,15 +85,15 @@ The sender only processes rows with `review_status=approved`, a valid `primary_e
 
 ## AI Drafting Before Review
 
-Add an `OPENAI_API_KEY` to `outputs/.env`, then use the AI writer to prepare a fit assessment, risks, a personalized hook, email subject, and message body for each creator. It uses only the details in the CSV and your campaign brief. It never changes `review_status` and never sends an email.
+Fill the Gemini and campaign markers in `outputs/.env`, then use the AI writer to prepare a fit assessment, risks, a personalized hook, email subject, and message body for each creator. It uses only the details in the CSV and your campaign brief. It never changes `review_status` and never sends an email.
 
 ```bash
 cd outputs
-python3 ai_outreach_writer.py --input outreach_queue.csv --out outreach_queue_ai.csv --brand-name "Your Brand" --campaign-brief "Paid collaboration introducing our daily wellness product. Do not make medical claims." --limit 10
-python3 ai_outreach_writer.py --input outreach_queue.csv --out outreach_queue_ai.csv --brand-name "Your Brand" --campaign-brief "Paid collaboration introducing our daily wellness product. Do not make medical claims." --limit 10 --generate
+python3 ai_outreach_writer.py --input outreach_queue.csv --out outreach_queue_ai.csv --limit 10
+python3 ai_outreach_writer.py --input outreach_queue.csv --out outreach_queue_ai.csv --limit 10 --generate
 ```
 
-The first command is a no-cost preview. The second one calls the OpenAI API and adds `ai_*` columns to the new CSV. Review `ai_fit_summary`, `ai_risk_flags`, `ai_subject`, and `ai_email_body`; only then set `review_status=approved`. `outreach_sender.py` uses the reviewed AI subject/body when present and otherwise uses the normal email template.
+The first command is a no-cost preview. The second one calls the Gemini API and adds `ai_*` columns to the new CSV. Review `ai_fit_summary`, `ai_risk_flags`, `ai_subject`, and `ai_email_body`; only then set `review_status=approved`. `outreach_sender.py` uses the reviewed AI subject/body when present and otherwise uses the normal email template.
 
 ## Next Integration
 
