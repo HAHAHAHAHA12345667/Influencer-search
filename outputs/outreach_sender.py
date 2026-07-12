@@ -89,6 +89,18 @@ def render_text(template: str, row: dict[str, str], config: dict[str, str]) -> s
         raise ValueError(f"Invalid template placeholder syntax: {error}") from error
 
 
+def email_body(template: str, row: dict[str, str], config: dict[str, str]) -> str:
+    """Use an AI draft only after it has survived the normal approval gate."""
+    draft = (row.get("ai_email_body") or "").strip()
+    if not draft:
+        return render_text(template, row, config)
+    footer = (
+        f"Best,\n{config['sender_name']}\n{config['brand_name']}\n{config['postal_address']}\n\n"
+        f'To stop receiving partnership emails from us, reply "unsubscribe" to {config["unsubscribe_email"]}.'
+    )
+    return f"{draft}\n\n{footer}"
+
+
 def load_template(path: str) -> str:
     template = Path(path).read_text(encoding="utf-8")
     if not template.strip():
@@ -213,8 +225,8 @@ def main() -> None:
 
         selected += 1
         timestamp = utc_now()
-        subject = render_text(args.subject, row, config)
-        body = render_text(template, row, config)
+        subject = (row.get("ai_subject") or "").strip() or render_text(args.subject, row, config)
+        body = email_body(template, row, config)
         if not args.send:
             row["outreach_status"] = "dry_run_ready"
             row["last_outreach_at"] = timestamp
