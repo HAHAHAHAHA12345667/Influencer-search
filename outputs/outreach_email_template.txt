@@ -1,0 +1,12 @@
+Hi {creator_name},
+
+I'm {sender_name} from {brand_name}. I came across {personalization_note} and think there may be a fit for {campaign_angle}.
+
+This is a paid collaboration inquiry. Would you be open to a short conversation? If someone else handles partnerships, please point me to the right contact.
+
+Best,
+{sender_name}
+{brand_name}
+{postal_address}
+
+To stop receiving partnership emails from us, reply "unsubscribe" to {unsubscribe_email}.
