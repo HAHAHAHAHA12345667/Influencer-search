@@ -15,6 +15,7 @@ outputs/*.inspect.ndjson
 outputs/rejected_search_results.csv
 outputs/outreach_queue*.csv
 outputs/outreach_queue*.json
+outputs/outreach_send_log*.csv
 outputs/*enriched*.csv
 outputs/*enriched*.json
 outputs/tiktok_influencer_candidates.csv
